@@ -12,7 +12,7 @@ class HelloResp(BaseModel):
 
 @app.get("/")
 def root():
-	return {"message": "Hello World"}
+	return {"message": "Hello world!"}
 
 
 @app.get("/hello/{name}")
@@ -26,6 +26,6 @@ def counter():
     return app.counter
 
 
-@app.get("/helloModel/{name}", response_model=HelloResp)
+@app.get("/hello/{name}", response_model=HelloResp)
 async def read_item(name: str):
     return HelloResp(msg=f"Hello {name}")

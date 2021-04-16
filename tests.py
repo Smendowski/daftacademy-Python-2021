@@ -10,7 +10,7 @@ client = TestClient(app)
 def test_read_main():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "Hello World"}
+    assert response.json() == {"message": "Hello world!"}
 
 
 @pytest.mark.parametrize("name", ["Zenek", "Marek", "Alojzy Niezdąży"])
@@ -28,11 +28,3 @@ def test_counter():
     response = client.get(f"/counter")
     assert response.status_code == 200
     assert response.text == "2"
-
-
-def test_read_item(name):
-    response = client.get(f"/helloModel/{name}")
-    assert response.status_code == 200
-    print(response.text)
-    print(type(response.text))
-    assert response.text.msg == f'"Hello {name}"'
