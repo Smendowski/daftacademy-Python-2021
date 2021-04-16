@@ -17,7 +17,7 @@ def test_read_main():
 def test_http_method(method):
     response = client.request(method=method, url='/method')
     assert response.status_code == 200 if method != 'POST' else response.status_code == 201
-    assert response.json() == {"message": f"{method}"}
+    assert response.json() == {"method": f"{method}"}
 
 
 @pytest.mark.parametrize("name", ["Zenek", "Marek", "Alojzy Niezdąży"])

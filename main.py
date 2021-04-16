@@ -19,7 +19,7 @@ def root():
 def handle_method(request: Request, response: Response):
     if request.method == 'POST':
         response.status_code = status.HTTP_201_CREATED
-    return {"message": f"{request.method}"}
+    return {"method": f"{request.method}"}
 
 
 @app.get("/hello/{name}")
