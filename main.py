@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response, status
 
 from pydantic import BaseModel
 
@@ -13,6 +13,13 @@ class HelloResp(BaseModel):
 @app.get("/")
 def root():
 	return {"message": "Hello world!"}
+
+
+@app.api_route("/method", methods=['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'])
+def handle_method(request: Request, response: Response):
+    if request.method == 'POST':
+        response.status_code = status.HTTP_201_CREATED
+    return {"message": f"{request.method}"}
 
 
 @app.get("/hello/{name}")
