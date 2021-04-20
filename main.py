@@ -2,14 +2,16 @@ from fastapi import FastAPI, Request, Response, status
 
 from pydantic import BaseModel
 
+from models import Person, RegisteredUser, HelloResp
+from utils import calculate_day_offset
+from datetime import date, timedelta
+
 import hashlib
 
 app = FastAPI()
 app.counter = 0
-
-
-class HelloResp(BaseModel):
-    msg: str
+app.id = 0
+app.patients = []
 
 
 @app.get("/")
@@ -31,6 +33,21 @@ async def authorize_password(response: Response, password: str = '', password_ha
             return    
     response.status_code = status.HTTP_401_UNAUTHORIZED
     return
+
+@app.post("/register", response_model=RegisteredUser, status_code=status.HTTP_201_CREATED)
+async def register_user(response: Response, person: Person):
+    vac_date = date.today() + timedelta(days=calculate_day_offset(person.name, person.surname))
+    app.id += 1
+    patient = RegisteredUser(
+        id=app.id,
+        name=person.name,
+        surname=person.surname,
+        register_date=date.today().strftime("%Y-%m-%d"), 
+        vaccination_date=vac_date.strftime("%Y-%m-%d")
+    )
+
+    app.patients.append(patient)
+    return patient
 
 @app.get("/hello/{name}")
 def hello_name_view(name: str):

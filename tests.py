@@ -1,8 +1,12 @@
 from fastapi.testclient import TestClient
 
 from main import app
+from models import Person, RegisteredUser
+from utils import calculate_day_offset
 
 import pytest
+import json
+from datetime import date, timedelta
 
 client = TestClient(app)
 
@@ -13,7 +17,7 @@ def test_read_main():
     assert response.json() == {"message": "Hello world!"}
 
 @pytest.mark.parametrize("method", ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'])
-def test_http_method(method):
+def test_http_method(method: str):
     response = client.request(method=method, url='/method')
     assert response.status_code == 200 if method != 'POST' else response.status_code == 201
     assert response.json() == {"method": f"{method}"}
@@ -27,7 +31,7 @@ def test_password():
     assert response.status_code == 401
 
 @pytest.mark.parametrize("name", ["Zenek", "Marek", "Alojzy Niezdąży"])
-def test_hello_name(name):
+def test_hello_name(name: str):
     response = client.get(f"/hello/{name}")
     assert response.status_code == 200
     assert response.text == f'"Hello {name}"'
@@ -36,7 +40,20 @@ def test_counter():
     response = client.get(f"/counter")
     assert response.status_code == 200
     assert response.text == "1"
-    # 2nd Try
     response = client.get(f"/counter")
     assert response.status_code == 200
     assert response.text == "2"
+
+registration_responses = {}
+
+@pytest.mark.parametrize("new_user", [Person(name='Jan', surname='Kowalski'), Person(name='Jacek', surname='Warzyńczak')])
+def test_registartion(new_user: Person):
+    response = client.post(url='/register', data=new_user.json())
+    assert response.status_code == 201 
+    assert type(response.json()['id']) == int 
+    assert response.json()['name'] == new_user.name
+    assert response.json()['surname'] == new_user.surname
+    assert response.json()['register_date'] == date.today().strftime(format="%Y-%m-%d")
+    vac_date = date.today() + timedelta(days=calculate_day_offset(new_user.name, new_user.surname))
+    assert response.json()['vaccination_date'] == vac_date.strftime(format="%Y-%m-%d")
+    registration_responses[response.json()['id']] = response.json()
