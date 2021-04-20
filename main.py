@@ -49,6 +49,18 @@ async def register_user(response: Response, person: Person):
     app.patients.append(patient)
     return patient
 
+@app.get("/patient/{patient_id}", response_model=RegisteredUser, status_code=status.HTTP_200_OK)
+async def get_registered_patient(response: Response, patient_id: int):
+	if patient_id < 1:
+		response.status_code = status.HTTP_400_BAD_REQUEST
+		return
+	
+	if patient_id not in [patient.id for patient in app.patients]:
+		response.status_code = status.HTTP_404_NOT_FOUND
+		return
+
+	return [patient for patient in app.patients if patient.id == patient_id][0]
+
 @app.get("/hello/{name}")
 def hello_name_view(name: str):
     return f"Hello {name}"

@@ -44,7 +44,7 @@ def test_counter():
     assert response.status_code == 200
     assert response.text == "2"
 
-registration_responses = {}
+registered_patients = {}
 
 @pytest.mark.parametrize("new_user", [Person(name='Jan', surname='Kowalski'), Person(name='Jacek', surname='Warzyńczak')])
 def test_registartion(new_user: Person):
@@ -56,4 +56,21 @@ def test_registartion(new_user: Person):
     assert response.json()['register_date'] == date.today().strftime(format="%Y-%m-%d")
     vac_date = date.today() + timedelta(days=calculate_day_offset(new_user.name, new_user.surname))
     assert response.json()['vaccination_date'] == vac_date.strftime(format="%Y-%m-%d")
-    registration_responses[response.json()['id']] = response.json()
+    registered_patients[response.json()['id']] = response.json()
+
+@pytest.mark.parametrize("patient_id", [1, 2])
+def test_getting_patients_good_identifier(patient_id):
+    response = client.get(f"patient/{patient_id}")
+    assert response.status_code == 200
+    assert response.json() == registered_patients[patient_id]
+
+@pytest.mark.parametrize("patient_id", registered_patients.keys())
+def test_getting_patients_bad_identifier(patient_id):
+    response = client.get(f"patient/{patient_id}")
+    assert response.status_code == 400
+
+@pytest.mark.parametrize("patient_id", [1000, 2000])
+def test_getting_patients_patinet_not_identified(patient_id):
+    response = client.get(f"patient/{patient_id}")
+    assert response.status_code == 404
+     

@@ -16,3 +16,7 @@ class RegisteredUser(BaseModel):
     surname: str
     register_date: str
     vaccination_date: str
+
+
+class PatientIdentifier(BaseModel):
+    id: int
