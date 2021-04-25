@@ -1,4 +1,4 @@
-## Activate Virtual Environment
+## Create and Activate Virtual Environment
 ```PowerShell
 .\daft\Scripts\activate
 ```
