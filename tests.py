@@ -73,4 +73,11 @@ def test_getting_patients_bad_identifier(patient_id):
 def test_getting_patients_patinet_not_identified(patient_id):
     response = client.get(f"patient/{patient_id}")
     assert response.status_code == 404
-     
+
+def test_hello_html_template():
+    response = client.get("/hello")
+
+    today = date.today()
+
+    assert response.headers["content-type"].split(';')[0] == "text/html"
+    assert response.text.__contains__(f'<h1>Hello! Today date is {today.strftime("%Y-%m-%d")}</h1>')
