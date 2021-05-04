@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Request, APIRouter, Request, Response, status, Depends, Query, HTTPException
 
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
 
 from utils import check_credentials
-from models import Token, HelloResp
+from models import Token, HelloResp, Message
 
 from datetime import date
 
@@ -41,3 +42,98 @@ def login_token(token: str = Depends(check_credentials)):
 		token=token
 	)
 
+@e_router.get("/welcome_session")
+def welcome_session(request: Request, format: str = ""):
+	if ("session_token" not in request.cookies.keys()) or (request.cookies["session_token"] is None) or (request.cookies["session_token"] not in e_router.sessions):
+		raise HTTPException(
+			status_code=status.HTTP_401_UNAUTHORIZED,
+			detail="Not authorized"
+		)
+
+	if format == 'json':
+		return Message(
+			message="Welcome!"
+		)
+	elif format == 'html':
+		return templates.TemplateResponse(
+			"welcome.html.j2",
+			{"request": request}
+		)
+	else:
+		return Response(
+			content="Welcome!", 
+			media_type="text/plain"
+		)
+
+
+@e_router.get("/welcome_token")
+def welcome_token(request: Request, token: str = "", format: str = ""):
+	if (not token) or (token == "") or (token not in e_router.tokens):
+		raise HTTPException(
+			status_code=status.HTTP_401_UNAUTHORIZED,
+			detail="Not authorized"
+		)
+
+	if format == 'json':
+		return Message(
+			message="Welcome!"
+		)
+	elif format == 'html':
+		return templates.TemplateResponse(
+			"welcome.html.j2",
+			{"request": request}
+		)
+	else:
+		return Response(
+			content="Welcome!",
+			media_type="text/plain"
+        )
+
+@e_router.delete('/logout_session', status_code=status.HTTP_302_FOUND)
+def logout_session(request: Request, format: str = ""):
+	if ("session_token" not in request.cookies.keys()) or (request.cookies["session_token"] is None) or (request.cookies["session_token"] not in e_router.sessions):
+		raise HTTPException(
+			status_code=status.HTTP_401_UNAUTHORIZED,
+			detail="Not authorized"
+		)
+	
+	e_router.sessions.remove(request.cookies["session_token"])
+
+	return RedirectResponse(
+		url=f"/logged_out?format={format}", 
+		status_code=302
+)
+
+@e_router.delete('/logout_token', status_code=status.HTTP_302_FOUND)
+def logout_token(request: Request, token: str = "", format: str = ""):
+	if (not token) or (token == "") or (token not in e_router.tokens):
+		raise HTTPException(
+			status_code=status.HTTP_401_UNAUTHORIZED,
+			detail="Not authorized"
+		)
+
+	e_router.tokens.remove(token)
+
+	return RedirectResponse(
+		url=f"/logged_out?format={format}", 
+		status_code=302
+	)
+
+
+@e_router.api_route('/logged_out', status_code=status.HTTP_200_OK, methods=['GET', 'DELETE'])
+def logged_out(request: Request, format: str = ""):
+
+	if format == 'json':
+		return Message(
+			message="Logged out!"
+		)
+	elif format == 'html':
+		return templates.TemplateResponse(
+			"logged_out.html.j2",
+			{"request": request}
+		)
+	else:
+		return Response(
+			content="Logged out!",
+			media_type="text/plain"
+		)
