@@ -6,6 +6,8 @@ from utils import calculate_day_offset
 
 import pytest
 import json
+from collections import namedtuple
+
 from datetime import date, timedelta
 
 client = TestClient(app)
@@ -81,3 +83,41 @@ def test_hello_html_template():
 
     assert response.headers["content-type"].split(';')[0] == "text/html"
     assert response.text.__contains__(f'<h1>Hello! Today date is {today.strftime("%Y-%m-%d")}</h1>')
+
+Credentials = namedtuple("Credentials", ("username", "password"))
+
+@pytest.mark.parametrize("input", [
+    {'creds': Credentials(username="4dm1n", password="NotSoSecurePa$$"), 'status': 'ok'},
+    {'creds': Credentials(username="4dm1n", password="notsosecurePa$$"), 'status': 'fail'},
+    {'creds': Credentials(username="admin", password="NotSoSecurePa$$"), 'status': 'fail'}
+    ]
+)
+def test_session_login_ok(input: dict):
+    response = client.post(
+        "/login_session", 
+        auth=(input['creds'].username, input['creds'].password)
+    )
+
+    if input['status'] == 'fail':
+        assert response.status_code == 401
+    else:
+        assert response.status_code == 201
+        assert 'session_token' in response.cookies
+
+@pytest.mark.parametrize("input", [
+    {'creds': Credentials(username="4dm1n", password="NotSoSecurePa$$"), 'status': 'ok'},
+    {'creds': Credentials(username="4dm1n", password="notsosecurePa$$"), 'status': 'fail'},
+    {'creds': Credentials(username="admin", password="NotSoSecurePa$$"), 'status': 'fail'}
+    ]
+)
+def test_token_login_ok(input: dict):
+    response = client.post(
+        "/login_token", 
+        auth=(input['creds'].username, input['creds'].password)
+    )
+
+    if input['status'] == 'fail':
+        assert response.status_code == 401
+    else:
+        assert response.status_code == 201
+        assert 'token' in response.json()

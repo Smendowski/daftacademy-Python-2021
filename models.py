@@ -5,6 +5,10 @@ class HelloResp(BaseModel):
     msg: str
 
 
+class Message(BaseModel):
+    msg: str
+
+
 class Person(BaseModel):
     name: str
     surname: str
@@ -20,3 +24,7 @@ class RegisteredUser(BaseModel):
 
 class PatientIdentifier(BaseModel):
     id: int
+
+class Token(BaseModel):
+	token: str
+    
