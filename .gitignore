@@ -1,3 +1,4 @@
 daft/*
 __pycache__/*
 .pytest_cache/*
+routers/__pycache__/**
