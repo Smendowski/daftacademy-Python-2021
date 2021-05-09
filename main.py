@@ -1,5 +1,5 @@
 import sqlite3
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Response
 from fastapi_route_log.log_request import LoggingRoute
 from routers import basic_endpoints, extended_endpoints
 
@@ -39,4 +39,17 @@ async def categories():
 
 @app.get("/customers", status_code=status.HTTP_200_OK)
 async def customers():
-    pass
+    cursor = app.db_connection.cursor()
+    customers = cursor.execute("SELECT * FROM Customers").fetchall()
+    return {"customers": customers}
+
+@app.get("/products/{product_id}", status_code=status.HTTP_200_OK)
+async def single_product(response: Response, product_id: int):
+    app.db_connection.row_factory = sqlite3.Row
+    product = app.db_connection.execute(
+        "SELECT ProductID, ProductName FROM Products WHERE ProductID = :product_id",
+        {'product_id': product_id}).fetchone()
+    if product:
+        return {"id": product[0], "name": product[1]}    
+    response.status_code = status.HTTP_404_NOT_FOUND
+    

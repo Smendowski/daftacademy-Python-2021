@@ -249,6 +249,27 @@ def test_categories_database():
     assert response.status_code == 200
     assert response.json() == {"categories": [{"id": x[0], "name": x[1]} for x in categories]}
 
-def test_customers_database():
-    response = client.get("/customers")
+# def test_customers_database():
+#     response = client.get("/customers")
+#     cursor = app.db_connection.cursor()
+#     customers = cursor.execute("SELECT * FROM Customers").fetchall()
+#     assert response.status_code == 200
+#     assert response.json() == {"customers": customers}
+
+
+@pytest.mark.parametrize("product_id", [1, 2, 3])
+def test_product_ok(product_id: int):
+    response = client.get(f"/products/{product_id}")
+    app.db_connection.row_factory = sqlite3.Row
+    product = app.db_connection.execute(
+        "SELECT ProductID, ProductName FROM Products WHERE ProductID = :product_id",
+        {'product_id': product_id}).fetchone()
     assert response.status_code == 200
+    assert response.json() == {"id": product[0], "name": product[1]} 
+
+def test_product_fail():
+    cursor = app.db_connection.cursor()
+    num_of_products = cursor.execute("SELECT COUNT(*) FROM Products").fetchone()[0]
+    app.db_connection.row_factory = sqlite3.Row
+    response = client.get(f"/products/{num_of_products+1}")
+    assert response.status_code == 404
