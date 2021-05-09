@@ -246,4 +246,9 @@ def test_categories_database():
     response = client.get("/categories")
     cursor = app.db_connection.cursor()
     categories = cursor.execute("SELECT CategoryID, CategoryName FROM Categories").fetchall()
+    assert response.status_code == 200
     assert response.json() == {"categories": [{"id": x[0], "name": x[1]} for x in categories]}
+
+def test_customers_database():
+    response = client.get("/customers")
+    assert response.status_code == 200

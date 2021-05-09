@@ -27,15 +27,16 @@ async def startup():
     app.db_connection = sqlite3.connect("northwind.db")
     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific 
 
-
 @app.on_event("shutdown")
 async def shutdown():
     app.db_connection.close()
-
 
 @app.get("/categories", status_code=status.HTTP_200_OK)
 async def categories():
     cursor = app.db_connection.cursor()
     categories = cursor.execute("SELECT CategoryID, CategoryName FROM Categories").fetchall()
     return {"categories": [{"id": x[0], "name": x[1]} for x in categories]}
-    
+
+@app.get("/customers", status_code=status.HTTP_200_OK)
+async def customers():
+    pass
