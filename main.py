@@ -119,7 +119,7 @@ async def products_orders(response: Response, id: int):
         return {"orders": [{"id": x[0], "customer": x[1], "quantity": x[2], "total_price": x[3]} for x in product_orders]}
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
-
+        return
 
 # @app.post("/categories", status_code=status.HTTP_201_CREATED)
 # async def create_category(new_category=Category):
