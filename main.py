@@ -153,7 +153,7 @@ async def update_category(response: Response, id: int, updated_category: Categor
             {"category_name": updated_category.name, "cid":id}
         )
         app.db_connection.commit()
-        return {"id": data.lastrowid , "name": updated_category.name}
+        return {"id": id , "name": updated_category.name}
 
 @app.delete("/categories/{id}", status_code=status.HTTP_200_OK)
 async def delete_category(response: Response, id: int):
