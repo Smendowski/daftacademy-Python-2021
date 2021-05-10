@@ -150,18 +150,18 @@ async def update_category(id: int, updated_category=Category):
     else:
         data = cursor.execute(
             "UPDATE Categories SET CategoryName=:category_name WHERE CategoryID=:cid",
-            {"category_name": update_category.name, "cid":id}
+            {"category_name": updated_category.name, "cid":id}
         )
         app.db_connection.commit()
         return {"id": data.lastrowid , "name": updated_category.name}
 
 @app.delete("/categories/{id}", status_code=status.HTTP_200_OK)
-async def delete_category(id: int, category_to_delete=Category):
+async def delete_category(id: int):
     if not isinstance(id, int):
         response.status_code = status.HTTP_404_NOT_FOUND
         return
     
-        cursor = app.db_connection.cursor()
+    cursor = app.db_connection.cursor()
     cursor.row_factory = sqlite3.Row
 
     checker = cursor.execute(
@@ -178,4 +178,4 @@ async def delete_category(id: int, category_to_delete=Category):
             {"cid":id}
         )
         app.db_connection.commit()
-        return {"deleted": id}
+        return {"deleted": data.rowcount}
