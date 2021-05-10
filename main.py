@@ -1,5 +1,6 @@
 import sqlite3
-from fastapi import FastAPI, status, Response
+from fastapi import FastAPI, status, Response, HTTPException
+from typing import Optional
 from fastapi_route_log.log_request import LoggingRoute
 from routers import basic_endpoints, extended_endpoints
 
@@ -40,8 +41,12 @@ async def categories():
 @app.get("/customers", status_code=status.HTTP_200_OK)
 async def customers():
     cursor = app.db_connection.cursor()
-    customers = cursor.execute("SELECT * FROM Customers").fetchall()
-    return {"customers": customers}
+    customers = cursor.execute(
+        "SELECT CustomerID, COALESCE(CompanyName, ''), \
+        (COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, '')) \
+        FROM Customers ORDER BY UPPER(CustomerID)"
+        ).fetchall()
+    return {"customers": [{"id": x[0], "name": x[1], "full_address": x[2]} for x in customers]}
 
 @app.get("/products/{product_id}", status_code=status.HTTP_200_OK)
 async def single_product(response: Response, product_id: int):
@@ -52,4 +57,20 @@ async def single_product(response: Response, product_id: int):
     if product:
         return {"id": product[0], "name": product[1]}    
     response.status_code = status.HTTP_404_NOT_FOUND
-    
+
+# @app.get("/employees", status_code=status.HTTP_200_OK)
+# async def employees(response: Response, limit: Optional[int] = None, offset: Optional[int] = None, order: Optional[str] = ""):
+#     query = "SELECT EmployeeID, LastName, FirstName, City From Employees"
+#     assotiations = {"last_name": "LastName", "first_name": "FirstName", "city": "City"}
+#     if order: 
+#         if order not in ["first_name", "last_name", "city"]:
+#             response.status_code = status_code.HTTP_400_BAD_REQUEST
+#         else:
+#             query += f" ORDER BY {assotiations[order]}"
+#     if limit and limit > 0: query += f" LIMIT {limit}"
+#     if offset: query+= f" OFFSET {offset}"
+#     employees = app.db_connection.execute(query)      
+#     if employees:
+#         return {"employees": [{"id": x[0], "last_name": x[1], "first_name": x[2], "city": x[3]} for x in employees]}
+#     else:
+#         response.status_code = status_code.HTTP_404_NOT_FOUND
