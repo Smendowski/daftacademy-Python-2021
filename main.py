@@ -114,12 +114,13 @@ async def products_orders(response: Response, id: int):
         WHERE od.ProductID = :pid;
         """,
         {"pid": id}
-    )
+    ).fetchall()
     if product_orders:
+        print(product_orders)
         return {"orders": [{"id": x[0], "customer": x[1], "quantity": x[2], "total_price": x[3]} for x in product_orders]}
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
-        return
+        return 
 
 # @app.post("/categories", status_code=status.HTTP_201_CREATED)
 # async def create_category(new_category=Category):
