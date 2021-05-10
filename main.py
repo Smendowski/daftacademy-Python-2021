@@ -78,3 +78,18 @@ async def employees(response: Response, limit: Optional[int] = None, offset: Opt
     employees = app.db_connection.execute(query).fetchall()      
     if employees:
         return {"employees": [{"id": x[0], "last_name": x[1], "first_name": x[2], "city": x[3]} for x in employees]}
+
+@app.get("/products_extended", status_code=status.HTTP_200_OK)
+async def products_extended():
+    cursor = app.db_connection.cursor()
+    products_extended = cursor.execute(
+        """
+        SELECT 
+	        p.ProductID, p.ProductName,
+	        (SELECT c.CategoryName FROM Categories AS c) AS category,
+	        (SELECT s.CompanyName FROM Suppliers AS s) AS supplier
+        FROM Products AS p 
+        ORDER BY p.ProductID;
+        """
+    ).fetchall()
+    return {"products_extended": [{"id": x[0], "name": x[1], "category": x[2], "supplier": x[3]} for x in products_extended]}
