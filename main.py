@@ -58,19 +58,24 @@ async def single_product(response: Response, product_id: int):
         return {"id": product[0], "name": product[1]}    
     response.status_code = status.HTTP_404_NOT_FOUND
 
-# @app.get("/employees", status_code=status.HTTP_200_OK)
-# async def employees(response: Response, limit: Optional[int] = None, offset: Optional[int] = None, order: Optional[str] = ""):
-#     query = "SELECT EmployeeID, LastName, FirstName, City From Employees"
-#     assotiations = {"last_name": "LastName", "first_name": "FirstName", "city": "City"}
-#     if order: 
-#         if order not in ["first_name", "last_name", "city"]:
-#             response.status_code = status_code.HTTP_400_BAD_REQUEST
-#         else:
-#             query += f" ORDER BY {assotiations[order]}"
-#     if limit and limit > 0: query += f" LIMIT {limit}"
-#     if offset: query+= f" OFFSET {offset}"
-#     employees = app.db_connection.execute(query)      
-#     if employees:
-#         return {"employees": [{"id": x[0], "last_name": x[1], "first_name": x[2], "city": x[3]} for x in employees]}
-#     else:
-#         response.status_code = status_code.HTTP_404_NOT_FOUND
+@app.get("/employees", status_code=status.HTTP_200_OK)
+async def employees(response: Response, limit: Optional[int] = None, offset: Optional[int] = None, order: Optional[str] = ""):
+    query = "SELECT EmployeeID, LastName, FirstName, City From Employees"
+    assotiations = ["last_name", "first_name", "city"]
+    if order in assotiations:
+        query += f" ORDER BY {order}"
+    elif order == "":
+        query += f" ORDER BY EmployeeID"
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Specified wrong order"
+        )
+    if limit != 0 and isinstance(limit, int):
+        query += f" LIMIT {limit}"
+    if offset != 0 and isinstance(offset, int):
+        query += f" OFFSET {offset}"
+    employees = app.db_connection.execute(query)      
+    if employees:
+        return {"employees": [{"id": x[0], "last_name": x[1], "first_name": x[2], "city": x[3]} for x in employees]}
+
