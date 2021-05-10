@@ -123,7 +123,7 @@ async def products_orders(response: Response, id: int):
         return 
 
 @app.post("/categories", status_code=status.HTTP_201_CREATED)
-async def create_category(new_category=Category):
+async def create_category(new_category: Category):
     cursor = app.db_connection.cursor()
     cursor.row_factory = sqlite3.Row
     data = cursor.execute("INSERT INTO Categories(CategoryName) VALUES (:name)", {"name": new_category.name})
@@ -131,7 +131,7 @@ async def create_category(new_category=Category):
     return {"id": data.lastrowid , "name": new_category.name}
 
 @app.put("/categories/{id}", status_code=status.HTTP_200_OK)
-async def update_category(id: int, updated_category=Category):
+async def update_category(response: Response, id: int, updated_category: Category):
     if not isinstance(id, int):
         response.status_code = status.HTTP_404_NOT_FOUND
         return
@@ -156,7 +156,7 @@ async def update_category(id: int, updated_category=Category):
         return {"id": data.lastrowid , "name": updated_category.name}
 
 @app.delete("/categories/{id}", status_code=status.HTTP_200_OK)
-async def delete_category(id: int):
+async def delete_category(response: Response, id: int):
     if not isinstance(id, int):
         response.status_code = status.HTTP_404_NOT_FOUND
         return
