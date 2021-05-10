@@ -75,7 +75,7 @@ async def employees(response: Response, limit: Optional[int] = None, offset: Opt
         query += f" LIMIT {limit}"
     if offset != 0 and isinstance(offset, int):
         query += f" OFFSET {offset}"
-    employees = app.db_connection.execute(query)      
-    if employees:
-        return {"employees": [{"id": x[0], "last_name": x[1], "first_name": x[2], "city": x[3]} for x in employees]}
+    employees = app.db_connection.execute(query).fetchall()      
+    
+    return dict(employees=employees)
 
