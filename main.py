@@ -96,6 +96,9 @@ async def products_extended():
 
 @app.get("/products/{id}/orders", status_code=status.HTTP_200_OK)
 async def products_orders(id: int):
+    if not isinstance(pid, int):
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return
     app.db_connection.row_factory = sqlite3.Row
     product_orders = app.db_connection.execute(
         """
@@ -113,4 +116,5 @@ async def products_orders(id: int):
     )
     if product_orders:
         return {"orders": [{"id": x[0], "customer": x[1], "quantity": x[2], "total_price": x[3]} for x in product_orders]}
-    response.status_code = status.HTTP_404_NOT_FOUND
+    else:
+        response.status_code = status.HTTP_404_NOT_FOUND
