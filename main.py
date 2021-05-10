@@ -96,7 +96,7 @@ async def products_extended():
 
 @app.get("/products/{id}/orders", status_code=status.HTTP_200_OK)
 async def products_orders(id: int):
-    if not isinstance(pid, int):
+    if not isinstance(id, int):
         response.status_code = status.HTTP_404_NOT_FOUND
         return
     app.db_connection.row_factory = sqlite3.Row
