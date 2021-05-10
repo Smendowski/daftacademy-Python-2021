@@ -131,7 +131,7 @@ async def create_category(new_category=Category):
     return {"id": data.lastrowid , "name": new_category.name}
 
 @app.put("/categories/{id}", status_code=status.HTTP_200_OK)
-async def update_category(id: int, updated_category=Category)
+async def update_category(id: int, updated_category=Category):
     if not isinstance(id, int):
         response.status_code = status.HTTP_404_NOT_FOUND
         return
@@ -156,7 +156,7 @@ async def update_category(id: int, updated_category=Category)
         return {"id": data.lastrowid , "name": updated_category.name}
 
 @app.delete("/categories/{id}", status_code=status.HTTP_200_OK)
-async def delete_category(id: int, category_to_delete=Category)
+async def delete_category(id: int, category_to_delete=Category):
     if not isinstance(id, int):
         response.status_code = status.HTTP_404_NOT_FOUND
         return
