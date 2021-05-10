@@ -86,10 +86,31 @@ async def products_extended():
         """
         SELECT 
 	        p.ProductID, p.ProductName,
-	        (SELECT c.CategoryName FROM Categories AS c) AS category,
-	        (SELECT s.CompanyName FROM Suppliers AS s) AS supplier
+	        (SELECT c.CategoryName FROM Categories AS c WHERE c.CategoryID = p.CategoryID) AS category,
+	        (SELECT s.CompanyName FROM Suppliers AS s WHERE s.SupplierID = p.SupplierID) AS supplier
         FROM Products AS p 
         ORDER BY p.ProductID;
         """
     ).fetchall()
     return {"products_extended": [{"id": x[0], "name": x[1], "category": x[2], "supplier": x[3]} for x in products_extended]}
+
+@app.get("/products/{id}/orders", status_code=status.HTTP_200_OK)
+async def products_orders(id: int):
+    app.db_connection.row_factory = sqlite3.Row
+    product_orders = app.db_connection.execute(
+        """
+        SELECT 
+	        od.OrderId,
+	        (SELECT c.CompanyName FROM Customers AS c WHERE c.CustomerID = o.CustomerID) AS customer,
+	        od.Quantity AS quantity,
+	        ROUND(((od.UnitPrice * od.Quantity) - (od.Discount * (od.Quantity * od.UnitPrice))), 2) AS total_price
+        FROM 'Order Details' AS od
+        JOIN Orders AS o ON o.OrderID = od.OrderId
+        JOIN Products AS p ON od.ProductID = p.ProductID 
+        WHERE od.ProductID = :pid;
+        """,
+        {"pid": id}
+    )
+    if product_orders:
+        return {"orders": [{"id": x[0], "customer": x[1], "quantity": x[2], "total_price": x[3]} for x in product_orders]}
+    response.status_code = status.HTTP_404_NOT_FOUND
