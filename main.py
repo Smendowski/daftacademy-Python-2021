@@ -61,9 +61,9 @@ async def single_product(response: Response, product_id: int):
 @app.get("/employees", status_code=status.HTTP_200_OK)
 async def employees(response: Response, limit: Optional[int] = None, offset: Optional[int] = None, order: Optional[str] = ""):
     query = "SELECT EmployeeID, LastName, FirstName, City From Employees"
-    assotiations = ["last_name", "first_name", "city"]
-    if order in assotiations:
-        query += f" ORDER BY {order}"
+    assotiations = {"last_name": "LastName", "first_name": "FirstName", "city": "City"}
+    if order in assotiations.keys():
+        query += f" ORDER BY {assotiations[order]}"
     elif order == "":
         query += f" ORDER BY EmployeeID"
     else:
@@ -76,6 +76,5 @@ async def employees(response: Response, limit: Optional[int] = None, offset: Opt
     if offset != 0 and isinstance(offset, int):
         query += f" OFFSET {offset}"
     employees = app.db_connection.execute(query).fetchall()      
-    
-    return dict(employees=employees)
-
+    if employees:
+        return {"employees": [{"id": x[0], "last_name": x[1], "first_name": x[2], "city": x[3]} for x in employees]}
