@@ -25,6 +25,10 @@ class RegisteredUser(BaseModel):
 class PatientIdentifier(BaseModel):
     id: int
 
+
 class Token(BaseModel):
 	token: str
     
+
+class Category(BaseModel):
+    name: str
