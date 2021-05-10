@@ -122,10 +122,60 @@ async def products_orders(response: Response, id: int):
         response.status_code = status.HTTP_404_NOT_FOUND
         return 
 
-# @app.post("/categories", status_code=status.HTTP_201_CREATED)
-# async def create_category(new_category=Category):
-#     cursor = app.db_connection.cursor()
-#     cursor.row_factory = sqlite3.Row
-#     data = cursor.execute("INSERT INTO Categories(CategoryName) VALUES (:name)", {"name": new_category.name})
-#     app.db_connection.commit()
-#     return {"id": data.lastrowid , "name": new_category.name}
+@app.post("/categories", status_code=status.HTTP_201_CREATED)
+async def create_category(new_category=Category):
+    cursor = app.db_connection.cursor()
+    cursor.row_factory = sqlite3.Row
+    data = cursor.execute("INSERT INTO Categories(CategoryName) VALUES (:name)", {"name": new_category.name})
+    app.db_connection.commit()
+    return {"id": data.lastrowid , "name": new_category.name}
+
+@app.put("/categories/{id}", status_code=status.HTTP_200_OK)
+async def update_category(id: int, updated_category=Category)
+    if not isinstance(id, int):
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return
+    
+    cursor = app.db_connection.cursor()
+    cursor.row_factory = sqlite3.Row
+
+    checker = cursor.execute(
+        "SELECT CategoryID FROM Categories WHERE CategoryID=:cid",
+        {"cid": id}
+    ).fetchone()
+
+    if not checker:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return
+    else:
+        data = cursor.execute(
+            "UPDATE Categories SET CategoryName=:category_name WHERE CategoryID=:cid",
+            {"category_name": update_category.name, "cid":id}
+        )
+        app.db_connection.commit()
+        return {"id": data.lastrowid , "name": updated_category.name}
+
+@app.delete("/categories/{id}", status_code=status.HTTP_200_OK)
+async def delete_category(id: int, category_to_delete=Category)
+    if not isinstance(id, int):
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return
+    
+        cursor = app.db_connection.cursor()
+    cursor.row_factory = sqlite3.Row
+
+    checker = cursor.execute(
+        "SELECT CategoryID FROM Categories WHERE CategoryID=:cid",
+        {"cid": id}
+    ).fetchone()
+
+    if not checker:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return
+    else:
+        data = cursor.execute(
+            "DELETE FROM Categories WHERE CategoryID=:cid",
+            {"cid":id}
+        )
+        app.db_connection.commit()
+        return {"deleted": id}
