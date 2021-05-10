@@ -95,7 +95,7 @@ async def products_extended():
     return {"products_extended": [{"id": x[0], "name": x[1], "category": x[2], "supplier": x[3]} for x in products_extended]}
 
 @app.get("/products/{id}/orders", status_code=status.HTTP_200_OK)
-async def products_orders(id: int):
+async def products_orders(response: Response, id: int):
     if not isinstance(id, int):
         response.status_code = status.HTTP_404_NOT_FOUND
         return
