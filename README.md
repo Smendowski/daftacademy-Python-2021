@@ -88,7 +88,7 @@ Schemas - to w jakiej formie dane zwraca Python (modele Pydentic - nie mylić!)
 sqlacodegen 'postgresql://postgres:DaftAcademy@127.0.0.1:5555' > models_postgres.py
 ```
 
-## 10. Run App Locally
+## 10. Run App Locally - add to env!
 ```PowerShell
 $env:SQLALCHEMY_DATABASE_URL="postgresql://postgres:DaftAcademy@127.0.0.1:5555/postgres";  uvicorn main:app
 ```
