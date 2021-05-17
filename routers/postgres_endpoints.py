@@ -26,7 +26,7 @@ def get_db():
         db.close()
 
 
-@p_router.get("/shippers/{shipper_id}", response_model=models.Shipper)
+@p_router.get("/shippers/{shipper_id}")
 async def get_shipper(shipper_id: PositiveInt, db: Session = Depends(get_db)):
     db_shipper = get_shipper(db, shipper_id)
     if db_shipper is None:
@@ -34,12 +34,12 @@ async def get_shipper(shipper_id: PositiveInt, db: Session = Depends(get_db)):
     return db_shipper
 
 
-@p_router.get("/shippers", response_model=List[models.Shipper])
+@p_router.get("/shippers")
 async def get_shippers(db: Session = Depends(get_db)):
     return get_shippers(db)
 
 
-@p_router.get("/suppliers/{supplier_id}", response_model=models.Supplier)
+@p_router.get("/suppliers/{supplier_id}")
 async def get_supplier(supplier_id: PositiveInt, db: Session = Depends(get_db)):
     db_supplier = get_supplier(db, supplier_id)
     if db_supplier is None:
@@ -47,7 +47,7 @@ async def get_supplier(supplier_id: PositiveInt, db: Session = Depends(get_db)):
     return db_supplier
 
 
-@p_router.get("/suppliers", response_model=List[models.Supplier])
+@p_router.get("/suppliers")
 async def get_suppliers(db: Session = Depends(get_db)):
     return get_suppliers(db)
     
