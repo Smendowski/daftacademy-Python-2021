@@ -2,7 +2,7 @@ import sqlite3
 from fastapi import FastAPI, status, Response, HTTPException
 from typing import Optional
 from fastapi_route_log.log_request import LoggingRoute
-from routers import basic_endpoints, extended_endpoints
+from routers import basic_endpoints, extended_endpoints, postgres_endpoints
 from models import Category
 
 app = FastAPI()
@@ -18,6 +18,10 @@ app.include_router(
     tags=["extended_endpoints"]
 )
 
+app.include_router(
+    postgres_endpoints.p_router,
+    tags=["postgres_endpoints"]
+)
 
 @app.get("/")
 def root():

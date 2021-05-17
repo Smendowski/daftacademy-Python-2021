@@ -81,6 +81,18 @@ pg_dump --format=c --no-owner --no-acl -h 127.0.0.1 -p 5555 -U postgres > northw
 heroku pg:psql postgresql-defined-18177 --app daftacademy2021
 ```
 
+## 9. Create models from database:
+Modele odwzorowują struktury tabeli w bazie danych - potrzebne do ORM.
+Schemas - to w jakiej formie dane zwraca Python (modele Pydentic - nie mylić!)
+```PowerShell
+sqlacodegen 'postgresql://postgres:DaftAcademy@127.0.0.1:5555' > models_postgres.py
+```
+
+## 10. Run App Locally
+```PowerShell
+$env:SQLALCHEMY_DATABASE_URL="postgresql://postgres:DaftAcademy@127.0.0.1:5555/postgres";  uvicorn main:app
+```
+
 ### CURL Testing Commands
 ```PowerShell
 HTTP 401:
