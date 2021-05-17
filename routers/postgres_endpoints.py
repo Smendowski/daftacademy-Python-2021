@@ -47,7 +47,7 @@ async def get_supplier(supplier_id: PositiveInt, db: Session = Depends(get_db)):
     return db_supplier
 
 
-@p_router.get("/suppliers")
+@p_router.get("/suppliers", response_model=List[models.Supplier])
 async def get_suppliers(db: Session = Depends(get_db)):
     return get_suppliers(db)
     
