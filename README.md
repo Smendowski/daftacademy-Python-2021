@@ -14,6 +14,72 @@ python -m uvicorn main:app --port 5555
 pytest tests.py
 ```
 
+<hr>
+
+# Docer and Postgres and Heroku
+## 0. Download Postgres (add to PATH), Docker, Docker Compose and Heroku CLI
+
+## 1. Start Postgres DB locally. Make sure docker is running.
+```PowerShell
+docker-compose up -d postgres
+docker-compose up 
+docker ps
+docker exec -it daftacademy_postgres_1 /bin/bash # root@d6b636ef2239:/#
+```
+
+## 2. Inside Postgres Containter
+```PowerShell
+psql -U postgres # postgres=#
+```
+
+## 3. Import to Postgres and provide password from docker-compose.yml
+```PowerShell
+psql -h 127.0.0.1 -p 5555 -U postgres -f northwind.postgre.sql
+# 5555 - Postgres Containter port exposed by Docker 
+```
+
+## 4. Inside Postgres Container - better way
+```PowerShell
+psql postgresql://postgres:DaftAcademy@127.0.0.1:5555/postgres
+```
+
+## 5. View Tables
+```psql
+postgres=# \d
+                List of relations
+ Schema |         Name         | Type  |  Owner
+--------+----------------------+-------+----------
+ public | categories           | table | postgres
+ public | customercustomerdemo | table | postgres
+ public | customerdemographics | table | postgres
+ public | customers            | table | postgres
+ public | employees            | table | postgres
+ public | employeeterritories  | table | postgres
+ public | order_details        | table | postgres
+ public | orders               | table | postgres
+ public | products             | table | postgres
+ public | region               | table | postgres
+ public | shippers             | table | postgres
+ public | shippers_tmp         | table | postgres
+ public | suppliers            | table | postgres
+ public | territories          | table | postgres
+ public | usstates             | table | postgres
+(15 rows)
+```
+
+## 6. Dump Database
+```PowerShell
+pg_dump --format=c --no-owner --no-acl -h 127.0.0.1 -p 5555 -U postgres > northwind.sql.dump 
+```
+## 7. Export dumped DB to Heroku
+```PowerShell
+ heroku pg:backups:restore 'https://github.com/daftcode/daftacademy-python_levelup-spring2021/raw/master/5_O_jak_ORM/dumps/northwind.sql.dump' postgresql-defined-18177 --app daftacademy2021 --confirm daftacademy2021
+```
+
+## 8. Connect to Database on Heroku via Heroku CLI
+```PowerShell
+heroku pg:psql postgresql-defined-18177 --app daftacademy2021
+```
 
 ### CURL Testing Commands
 ```PowerShell
