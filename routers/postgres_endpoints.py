@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import PositiveInt
 from typing import List
 import os
@@ -6,6 +6,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 import models_postgres
 import models
 
@@ -52,6 +53,23 @@ async def get_suppliers(db: Session = Depends(get_db)):
     return get_suppliers(db)
     
 
+@p_router.get("/suppliers/{supplier_id}/products", status_code=status.HTTP_200_OK)
+async def get_supplier_products(supplier_id: PositiveInt, db: Session = Depends(get_db)):
+    db_supplier_products = get_supplier_products_orm(db, supplier_id)
+    if db_supplier_products is None:
+        raise HTTPException(status_code=404, detail="Supplier's products not found")
+    return list(
+        [ models.SupplierProduct(
+            ProductID=row.Product.ProductID, 
+            ProductName=row.Product.ProductName, 
+            Category=models.CategoryData(
+                CategoryID=row.Category.CategoryID,
+                CategoryName=row.Category.CategoryName
+            ),
+            Discontinued=row.Product.Discontinued
+            ) for row in db_supplier_products]
+    )
+
 # ORM Functions - get data from DB based on Session.
 def get_shippers(db: Session):
     return db.query(models_postgres.Shipper).all()
@@ -71,3 +89,27 @@ def get_supplier(db: Session, supplier_id: int):
     return (
         db.query(models_postgres.Supplier).filter(models_postgres.Supplier.SupplierID == supplier_id).first()
     )
+
+
+def get_supplier_products_orm(db: Session, supplier_id: int):
+    return (
+        db.query(models_postgres.Product, models_postgres.Category)
+        .filter(models_postgres.Product.CategoryID == models_postgres.Category.CategoryID)
+        .filter(models_postgres.Product.SupplierID == supplier_id)
+        .order_by(models_postgres.Product.ProductID.desc())
+        .all()
+    )
+
+    """
+    SELECT
+        p.ProductID, 
+        p.ProductName,
+        c.CategoryID,
+        c.CategoryName,
+        p.Discontinued 
+    FROM Products AS p 
+    JOIN Categories AS c on p.CategoryID  = c.CategoryID
+    JOIN Suppliers AS s on s.SupplierID = p.SupplierID
+    WHERE s.SupplierID = 1
+    ORDER BY p.ProductID DESC;
+    """

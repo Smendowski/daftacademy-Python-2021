@@ -1,4 +1,4 @@
-from pydantic import BaseModel, PositiveInt, constr
+from pydantic import BaseModel, Field, PositiveInt, constr
 
 
 class HelloResp(BaseModel):
@@ -50,4 +50,22 @@ class Supplier(BaseModel):
     CompanyName: constr(max_length=40)
 
     class Config:
-        orm_mode = True  
+        orm_mode = True
+
+
+class CategoryData(BaseModel):
+    CategoryID: PositiveInt
+    CategoryName: str
+
+    class Config:
+        orm_mode = True 
+
+
+class SupplierProduct(BaseModel):
+    ProductID: PositiveInt
+    ProductName: str
+    Category: CategoryData
+    Discontinued: int
+
+    class Config:
+        orm_mode = True 
