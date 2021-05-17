@@ -56,7 +56,7 @@ async def get_suppliers(db: Session = Depends(get_db)):
 @p_router.get("/suppliers/{supplier_id}/products", status_code=status.HTTP_200_OK)
 async def get_supplier_products(supplier_id: PositiveInt, db: Session = Depends(get_db)):
     db_supplier_products = get_supplier_products_orm(db, supplier_id)
-    if db_supplier_products is None:
+    if not db_supplier_products:
         raise HTTPException(status_code=404, detail="Supplier's products not found")
     return list(
         [ models.SupplierProduct(
