@@ -71,17 +71,18 @@ async def get_supplier_products(supplier_id: PositiveInt, db: Session = Depends(
     )
 
 
+
 @p_router.post("/suppliers", status_code=status.HTTP_201_CREATED, response_model=models.ReturnedSupplier)
 async def create_supplier(new_supplier: models.PostedSupplier, db: Session = Depends(get_db)):
     # curl -X POST -d '{/"CompanyName/": /"CName/"}' 127.0.0.1:8000/suppliers
     
     last_supplier = db.query(models_postgres.Supplier).order_by(models_postgres.Supplier.SupplierID.desc()).first()
 
-    orm_supplier = models_postgres.SupplierID(**new_supplier.dict())
+    orm_supplier = models_postgres.Supplier(**new_supplier.dict())
     orm_supplier.SupplierID = last_supplier.SupplierID + 1
 
     db.add(orm_supplier)
-    db.flus()
+    db.flush()
     db.commit()
 
     return orm_supplier
@@ -129,4 +130,3 @@ def get_supplier_products_orm(db: Session, supplier_id: int):
     WHERE s.SupplierID = 1
     ORDER BY p.ProductID DESC;
     """
-
