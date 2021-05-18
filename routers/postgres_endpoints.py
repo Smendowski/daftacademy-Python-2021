@@ -3,7 +3,7 @@ from pydantic import PositiveInt
 from typing import List
 import os
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, insert
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
@@ -70,6 +70,22 @@ async def get_supplier_products(supplier_id: PositiveInt, db: Session = Depends(
             ) for row in db_supplier_products]
     )
 
+
+@p_router.post("/suppliers", status_code=status.HTTP_201_CREATED, response_model=models.ReturnedSupplier)
+async def create_supplier(new_supplier: models.PostedSupplier, db: Session = Depends(get_db)):
+    # curl -X POST -d '{/"CompanyName/": /"CName/"}' 127.0.0.1:8000/suppliers
+    
+    last_supplier = db.query(models_postgres.Supplier).order_by(models_postgres.Supplier.SupplierID.desc()).first()
+
+    orm_supplier = models_postgres.SupplierID(**new_supplier.dict())
+    orm_supplier.SupplierID = last_supplier.SupplierID + 1
+
+    db.add(orm_supplier)
+    db.flus()
+    db.commit()
+
+    return orm_supplier
+
 # ORM Functions - get data from DB based on Session.
 def get_shippers(db: Session):
     return db.query(models_postgres.Shipper).all()
@@ -113,3 +129,4 @@ def get_supplier_products_orm(db: Session, supplier_id: int):
     WHERE s.SupplierID = 1
     ORDER BY p.ProductID DESC;
     """
+
