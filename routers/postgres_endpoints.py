@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from pydantic import PositiveInt
 from typing import List
 import os
@@ -117,6 +117,30 @@ async def update_supplier(supplier_id: int, update_supplier: models.UpdatedSuppl
     return to_update
 
 
+@p_router.delete("/supplier/{supplier_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_supplier(supplier_id: int, db: Session = Depends(get_db)):
+    if not supplier_id:
+         raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ID not provided."
+        )
+
+    to_delete: models_postgres.Supplier = db.get(models_postgres.Supplier, supplier_id)
+    if not to_delete:
+         raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ID not provided."
+        )     
+
+    db.delete(to_delete)
+    db.flush()
+    db.commit()
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT
+    )
+
+    
 # ORM Functions - get data from DB based on Session.
 def get_shippers(db: Session):
     return db.query(models_postgres.Shipper).all()
