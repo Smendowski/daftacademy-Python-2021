@@ -87,6 +87,36 @@ async def create_supplier(new_supplier: models.PostedSupplier, db: Session = Dep
 
     return orm_supplier
 
+
+@p_router.put("/suppliers/{supplier_id}", status_code=status.HTTP_200_OK, response_model=models.ReturnedSupplier)
+async def update_supplier(supplier_id: int, update_supplier: models.UpdatedSupplier, db: Session = Depends(get_db)):
+    if not supplier_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ID not provided."
+        )
+    
+    to_update: models_postgres.Supplier = db.get(models_postgres.Supplier, supplier_id)
+    if not to_update:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ID not provided."
+        )
+    
+    # if v is not None -> Parameters are Optional
+    updict = {k: v for k, v in update_supplier.dict().items() if v is not None}
+
+    if updict:
+        is_updated = (db.query(models_postgres.Supplier)
+                        .filter(models_postgres.Supplier.SupplierID == supplier_id)
+                        .update(updict, synchronize_session="fetch"))
+    db.flush()
+    db.commit()
+    db.refresh(to_update)
+
+    return to_update
+
+
 # ORM Functions - get data from DB based on Session.
 def get_shippers(db: Session):
     return db.query(models_postgres.Shipper).all()

@@ -103,8 +103,14 @@ class ReturnedSupplier(BaseModel):
 
 
 class UpdatedSupplier(BaseModel):
-    CompanyName: Optional[str]
+    CompanyName: Optional[str]  
+    ContactName: Optional[str]
     ContactTitle: Optional[str]
+    Address: Optional[str]
+    City: Optional[str]
+    PostalCode: Optional[str]
+    Country: Optional[str]
+    Phone: Optional[str]
 
     class Config:
         orm_mode = True
